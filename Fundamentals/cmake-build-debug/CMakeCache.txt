@@ -251,6 +251,15 @@ FirstTry_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 FirstTry_SOURCE_DIR:STATIC=C:/Users/lucas/Desktop/Proyecto/LearningGraphics/Fundamentals
 
+//Value Computed by CMake
+Fundamentals_BINARY_DIR:STATIC=C:/Users/lucas/Desktop/Proyecto/LearningGraphics/Fundamentals/cmake-build-debug
+
+//Value Computed by CMake
+Fundamentals_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+Fundamentals_SOURCE_DIR:STATIC=C:/Users/lucas/Desktop/Proyecto/LearningGraphics/Fundamentals
+
 
 ########################
 # INTERNAL cache entries
