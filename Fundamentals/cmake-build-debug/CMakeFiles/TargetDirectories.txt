@@ -1,0 +1,3 @@
+C:/Users/lucas/Desktop/Proyecto/LearningGraphics/Fundamentals/cmake-build-debug/CMakeFiles/FirstTry.dir
+C:/Users/lucas/Desktop/Proyecto/LearningGraphics/Fundamentals/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/lucas/Desktop/Proyecto/LearningGraphics/Fundamentals/cmake-build-debug/CMakeFiles/rebuild_cache.dir
