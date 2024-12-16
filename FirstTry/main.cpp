@@ -44,7 +44,24 @@ void probandoVentanas(){
 	 *		- Puede ser o no ser visible
 	 *		- Sabe como dibujarse a sí mismo
 	 *		- Responde a eventos del usuario o sistema operativo.
-	 *
+	 * Relaciones en ventanas:
+	 * Una ventana, application window, es la principal, si esta muere, todas
+	 * las demás también. Esta ventana main podría tener hijas (botontes por
+	 * ejemplo) que no pueden salirse de su dominio. A su vez, también podría
+	 * poseer ventanas tipo modal dialog window, entonces, application window es
+	 * el owner del modal y el modal puede ser padre de otras ventanas como
+	 * botones o elementos UI.
+	 * Las ventanas son objetos (pero no son clases en C++). Un programa
+	 * referencia a una ventana usando un valor llamado handle. En sí, es solo
+	 * un número que el SO usa para referenciar a un objeto. Se usa el tipo de
+	 * dato HWND para representar un Window Handle. Estos son retornados por
+	 * algunas funciones que crean ventanas.
+	 * HWND NO es un puntero, es una variable que contiene un handle.
+	 * Pantalla y coordenadas:
+	 * Todas las coordenadas son relativas.
+	 *		- Nivel 1: Pantalla (Esquina superior izquierda es (0, 0))
+	 *		- Nivel 2: Ventana (Desde el borde más exterior)
+	 *		- Nivel 3: Cliente (Desde el borde más interior)
 	 */
 }
 
