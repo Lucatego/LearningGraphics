@@ -1,3 +1,5 @@
+//NOTA: Este archivo no esta pensado para ser compilado ni ejecutado
+//Es solo información
 #include <iostream>
 
 #include <windows.h>
@@ -70,5 +72,37 @@ int main(int __argc, char ** __argv){
 	probandoTipos();
 	//Inicio con las ventanas
 	probandoVentanas();
+	return 0;
+}
+
+//Recordar: PWSRT es un Puntero a Wide Charachter wchar_t *
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow){
+	/*
+	 * 1. ¿Que es WINAPI? Es una forma de decir __stdcall, la cual es una
+	 * convención de llamadas en Windows, es decir, define como se pasan los
+	 * parametros a una función. En resumen, es algo definido para saber como
+	 * se ejecuta la función, por ejemplo, el orden de almacenamiento en el stack.
+	 *
+	 * 2. El WinMain:
+	 * int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow);
+	 * Donde:
+	 * - hInstance, es el handle a una instancia o a un módulo. El SO usa este
+	 * parametro para identificar al EXE cuando está en memoria.
+	 * - hPrevInstance, no tiene uso, solo en 16-bit Windows.
+	 * - pCmdLine, tiene los argumentos de la linea de comandos en una cadena tipo
+	 * Unicode.
+	 * - nCmdShow, un indicador de si el window main está minimizado, maximizado o
+	 * normal.
+	 * Finalmente, retorna un int pero el SO no lo usa. Se puede usar como indicador
+	 * de estado para otro programa.
+	 *
+	 * WinMain es igual a wWinMain, solo que WinMain usa ANSI.
+	 * Si queremos una copia en Unicode de los argumentos, entonces usamos la
+	 * función GetCommandLine.
+	 * Si lo queremos tipo argv, entonces usamos CommandLineToArgvW.
+	 *
+	 * Siempre recordar las conveciones y los tipos de datos
+	 *
+	 */
 	return 0;
 }
