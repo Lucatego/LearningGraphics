@@ -4,3 +4,4 @@ CMakeLists.txt
 .vs/
 *.sln
 *.vcxproj*
+x64/
