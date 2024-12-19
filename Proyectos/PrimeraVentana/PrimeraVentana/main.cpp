@@ -7,19 +7,44 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	//Nombre de la ventana
 	const wchar_t CLASS_NAME[] = L"Mi primera ventana";
 
+	/*
+	* Windows Classes:
+	* Una abstracción, por ejemplo, los botones son similares pero cada ventana tiene sus datos de instancia
+	* Recordar que una ventana no es una clase, sino una estructura de datos usada por el SO.
+	*/
+
 	//La estructura con los datos para la ventana
 	WNDCLASS wc = {};
 
-	wc.lpfnWndProc = WindowProc;
+	//Es un puntero a una funcion definida por la aplicacion (procedimiento de ventana)
+	//Define el comportamiento de la ventana
+	wc.lpfnWndProc = WindowProc; 
+	//Identificador de instancia de la aplicacion, es algo así como el pid.
 	wc.hInstance = hInstance;
+	//Es una cadena para dar nombre a la clase
 	wc.lpszClassName = CLASS_NAME;
 
-	//Registrar la ventana
+	/*
+	* Los nombres de las clases son locales para el proceso que está ejecutando la ventana.
+	* Por lo tanto, los nombres deben ser unicos. Inclusive los controles estandar de Windows, por lo que
+	* se deben elegir nombres que no entren en conflicto. Por ejemplo, Button para botón.
+	*/
+
+	//Registrar la clase ventana con el SO
 	RegisterClass(&wc);
 
-	//Crear la ventana
-	HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"Aprendiendo ventanas en Windows", WS_OVERLAPPEDWINDOW, 
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	//Crear la ventana, devuelve el identificador de ventana.
+	HWND hwnd = CreateWindowEx(
+		0, //Permite especificar comportamientos como transparencia. 0 == Predeterminado
+		CLASS_NAME, //Nombre de la clase ventana
+		L"Aprendiendo ventanas en Windows", //El texto de la barra de título de la ventana
+		WS_OVERLAPPEDWINDOW, //El estilo de la ventana, son marcas de bits, dan título, borde, etc...
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, //Para la posicion y el tamaño
+		NULL, //Ventana padre
+		NULL, //Menu de la ventana
+		hInstance, //Identificador de instancia, para que el SO identifique el ejecutable cuando esté cargado en memoria
+		NULL //Un puntero a datos arbitarios tipo (void *)
+	);
 
 	//Si no se pudo crear
 	if (hwnd == 0) return 0;
@@ -27,9 +52,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	//Mostramos la ventana
 	ShowWindow(hwnd, nCmdShow);
 
-	//En bucle
+	/*
+	* La aplicación GUI debe responder a: Eventos del usuario y Eventos del SO.
+	* Windows usa un modelo de paso de mensajes. El SO se comunica con la ventana.
+	* Un mensaje es un código numérico que designa un eveneto determinado.
+	* Por ejemplo: #define WM_LBUTTONDOWN 0X0201 //Mensaje enviado al pulsar el botón izquierdo.
+	* Algunos mensajes tienen más información asociada, por ejemplo, las coordenadas X e Y del lugar de la pulsación.
+	* El SO llama al procedimiento de ventana registrado a esa ventana.
+	*/
+
+	//Mensajes de ventana
 	MSG msg = {};
 
+	//En bucle, la aplicación recibe miles de mensajes.
 	while (GetMessage(&msg, NULL, 0, 0) > 0) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -38,6 +73,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	return 0;
 }
 
+//El procedimiento de vetana. Esta es la funcion encargada para procesar los eventos y mensajes para la ventana
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
 		case WM_DESTROY:
