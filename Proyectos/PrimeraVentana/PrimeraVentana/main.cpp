@@ -64,16 +64,36 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	//Mensajes de ventana
 	MSG msg = {};
 
-	//En bucle, la aplicación recibe miles de mensajes.
+	//En bucle, la aplicación recibe miles de mensajes. Por lo general, retorna valores diferentes a 0
 	while (GetMessage(&msg, NULL, 0, 0) > 0) {
+		//Hace una traducción de pulsaciones del teclado a caracteres para que puedan ser interpretados.
 		TranslateMessage(&msg);
+		/*
+		* Informa al SO para que llame al procedimiento de ventana (WindowProc).
+		* 1. El SO coloca un mensaje en la cola
+		* 2. El programa llama a GetMessage.
+		* 3. GetMessage extrae el  mensaje de la cola y llena la estructura msg.
+		* 4. Se llaman a TranslateMessage y DispatchMessage.
+		* 5. En DispatchMessage el SO llama a WindowProc.
+		* 6. El procedimiento de ventana decide que hacer con el mensaje.
+		*/
 		DispatchMessage(&msg);
 	}
+
+	/*
+	* Uso de PostQuitMessage: Coloca un mensaje WM_QUIT, en la cola de mensajes, este mensaje es especial, ya que, 
+	* fuerza a GetMessage a devolver 0.
+	*/
+
+	/*
+	* - Publicar un mensaje: Pasar el mensaje a la cola de mensajes y enviarla a través del bucle a GetMessage y DispatchMessage
+	* - Enviar un mensaje: El mensaje se salta la cola y el SO llama directamente a WindowProc.
+	*/
 
 	return 0;
 }
 
-//El procedimiento de vetana. Esta es la funcion encargada para procesar los eventos y mensajes para la ventana
+//El procedimiento de ventana. Esta es la funcion encargada para procesar los eventos y mensajes para la ventana
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
 		case WM_DESTROY:
