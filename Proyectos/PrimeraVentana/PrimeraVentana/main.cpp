@@ -1,6 +1,7 @@
 #include <windows.h>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void OnSize(HWND hwnd, UINT flag, int width, int height);
 
 //Los _In_ y _In_opt_ son opcionales, pero indican que los parametros de entrada son solo de lectura.
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR pCmdLine, _In_ int nCmdShow) {
@@ -94,20 +95,55 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 }
 
 //El procedimiento de ventana. Esta es la funcion encargada para procesar los eventos y mensajes para la ventana
+//CALLBACK: Es la convención de llamada para la función.
+//LRESULT es un valor entero que el programa devuelve a Windows. Es decir, contiene la respuesta al mensaje.
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	/*
+	* hwnd: Identificador de la ventana
+	* uMsg: El código del mensaje
+	* wParam y lParam: Datos adicionales al mensaje dependiendo de su código. (32 y 64 bits)
+	*/
 	switch (uMsg) {
 		case WM_DESTROY:
-			PostQuitMessage(0);
+			PostQuitMessage(0); //Señal para salir del mensaje
 			break;
-		case WM_PAINT:
-		{
+		case WM_PAINT: {
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hwnd, &ps);
 			//Aca ocurre el pintado
 			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
 			EndPaint(hwnd, &ps);
+			return 0;
 		}
-		return 0;
+		//Ejemplo de resize
+		case WM_SIZE: {
+			//LOWORD y HIWORD son macros. Su función es obtener los valores de ancho y alto de 16 bits de lParam.
+			int width = LOWORD(lParam);
+			int height = HIWORD(lParam);
+
+			//Respuesta en una función aparte.
+			OnSize(hwnd, (UINT)wParam, width, height);
+		}
 	}
+	//Esta función es la acción predeterminada para un mensaje, que varía según el tipo de mensaje.
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+
+	/*
+	* Evitar cuellos de botella:
+	* Al ejecutar un procedimiento de ventana, bloquea cualquier otro mensaje para las ventanas creadase en el mismo 
+	* subproceso. Así, evita un procesamiento largo del procedimiento de ventana.
+	* Por ejemplo: 
+	* Si el programa realiza una conexión TCP y espera indefinidamente al servidor. Si es que realizamos esa acción 
+	* de conexión dentro del WindowProc, entonces, la ventana NO podrá procesar ningún otro mensaje hasta que le llegue
+	* la respuesta del servidor.
+	* Alternativas: Mover el trabajo a otro subproceso mediante la multitarea de Windows. (Hilos y procesos)
+	* - Craer un nuevo subproceso.
+	* - Usar un grupo de subprocesos.
+	* - Llamadas de E/S asíncronas.
+	* - Llamadas a procediminetos asíncronos
+	*/
+}
+
+void OnSize(HWND hwnd, UINT flag, int width, int height) {
+	//Aca se maneja el resize.
 }
