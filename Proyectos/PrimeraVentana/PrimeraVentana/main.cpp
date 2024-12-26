@@ -1,3 +1,4 @@
+//https://learn.microsoft.com/es-es/windows/win32/
 #include <windows.h>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -104,14 +105,52 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 	* wParam y lParam: Datos adicionales al mensaje dependiendo de su código. (32 y 64 bits)
 	*/
 	switch (uMsg) {
+		/*
+		* Ya sea con el botón de cerrar o con ALT + F4, la ventana recibirá el mensaje VM_CLOSE.
+		* Este mensaje ofrece la oportunidad de pedir al usuario una confirmación antes de cerrar la ventana.
+		*/
+		case WM_CLOSE:
+			if (MessageBox(hwnd, L"¿Desea salir?", L"Mi ventana P1", MB_OKCANCEL) == IDOK) {
+				//Para cerrar la ventana completamente
+				DestroyWindow(hwnd);
+			}
+			//Caso contrario, no hace nada
+			return 0;
 		case WM_DESTROY:
 			PostQuitMessage(0); //Señal para salir del mensaje
 			break;
+		/*
+		* Pintar la ventana:
+		* Es decir, mostrar algo en la ventana.
+		* Esto ocurrirar cuando el programa tenga que actualizar la apariencia de la ventana o cuando el SO mande
+		* un mensaje para volver a pintar alguna parte de la ventana.
+		* La primera vez que se muestra una ventana, se debe pintar toda el area de cliente. Nosotros somos los 
+		* responsables de pintar esta área, los marcos y el resto del exterior será trabajo del SO.
+		* La región de actualización debe ser borrada al terminar de pintar el área del cliente. Cada vez que alguna 
+		* otra ventana oculte una parte de nuestra ventana, entonces, se tiene que volver a pintar esa parte luego de
+		* que deje de estar oculta.
+		* También, se tiene que volver a pintar al hacer resize a la ventana.
+		* 
+		*/
 		case WM_PAINT: {
+			//Estructura con datos para el pintado de la ventana.
 			PAINTSTRUCT ps;
+			//Esta funcion rellena la estructura PAINTSTRUCT con información sobre la solicitud de reintentos.
+			//La región de actualización se indica en el atributo rcPaint de la estructura.
 			HDC hdc = BeginPaint(hwnd, &ps);
-			//Aca ocurre el pintado
+			/*
+			* Aca ocurre el pintado.
+			* Hay 2 opciones: 
+			* - Pintar todo el área del cliente, independientemente de la región de actualización pero
+			* se recorta todo lo que quede fuera de la región de actualización. (Más sencillo)
+			* - Solo pintar la parte de la ventana dentro de la región de actualización. (Más eficaz)
+			* 
+			* Esta línea rellena la región de actualización con el color de fondo definido por COLOR_WINDOW (Este
+			* depende de lo elegido por el usuario.
+			* En el segundo parametro enviamos las coordenadas a pintar.
+			*/
 			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+			//Esta función borra la región de actualización. Indica a Windows que se ha terminado la pintura.
 			EndPaint(hwnd, &ps);
 			return 0;
 		}
