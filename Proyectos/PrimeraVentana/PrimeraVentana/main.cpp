@@ -1,8 +1,16 @@
 //https://learn.microsoft.com/es-es/windows/win32/
-#include <windows.h>
+#include <Windows.h>
+#include <new> //Para el (std::nothrow)
+
+//Definir una estructura para mantener información sobre estados
+struct StateInfo {
+	// Algunos miembros
+};
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void OnSize(HWND hwnd, UINT flag, int width, int height);
+
+inline StateInfo * GetAppState(HWND hwnd);
 
 //Los _In_ y _In_opt_ son opcionales, pero indican que los parametros de entrada son solo de lectura.
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR pCmdLine, _In_ int nCmdShow) {
@@ -35,6 +43,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	//Registrar la clase ventana con el SO
 	RegisterClass(&wc);
 
+	//Estrucutra para los datos -> Las deberiamos inicializar antes de Crear la ventana
+	StateInfo * pState = new (std::nothrow)StateInfo;
+	if (pState == NULL) return 0;
+
 	//Crear la ventana, devuelve el identificador de ventana.
 	HWND hwnd = CreateWindowEx(
 		0, //Permite especificar comportamientos como transparencia. 0 == Predeterminado
@@ -45,7 +57,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		NULL, //Ventana padre
 		NULL, //Menu de la ventana
 		hInstance, //Identificador de instancia, para que el SO identifique el ejecutable cuando esté cargado en memoria
-		NULL //Un puntero a datos arbitarios tipo (void *)
+		pState //Un puntero a datos arbitarios tipo (void *), podría ser NULL
 	);
 
 	//Si no se pudo crear
@@ -104,6 +116,24 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 	* uMsg: El código del mensaje
 	* wParam y lParam: Datos adicionales al mensaje dependiendo de su código. (32 y 64 bits)
 	*/
+	StateInfo * pState;
+	if (uMsg == WM_CREATE){
+		/*
+		* En este tipo de mensajes, el parametro lParam es un puntero a una estructura CREATESTRUCT.
+		* Esta estructura contiene el puntero (void *) que se envió al crear la ventana.
+		*/
+		//Primero, se extrae el puntero a la estructura de datos, de LPARAM a CREATESTRUCT.
+		CREATESTRUCT * pCreate = reinterpret_cast<CREATESTRUCT *>(lParam);
+		//Uno de los miembros de la estructura CREATESTRUCT es un puntero al pState que enviamos al crear la ventana.
+		pState = reinterpret_cast<StateInfo *>(pCreate->lpCreateParams);
+		//Con esta ultima llamada, almacenamos el puntero StateInfo en los datos de la instancia de la ventana. Gracias a esto,
+		//ahora podemos siempre devolver el estado con GetWindowLongPtr;
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pState);
+	}
+	else{
+		pState = GetAppState(hwnd);
+	}
+
 	switch (uMsg) {
 		/*
 		* Ya sea con el botón de cerrar o con ALT + F4, la ventana recibirá el mensaje VM_CLOSE.
@@ -117,7 +147,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 			//Caso contrario, no hace nada
 			return 0;
 		case WM_DESTROY:
-			PostQuitMessage(0); //Señal para salir del mensaje
+			//Coloca una señal en a cola para que el bucle finalice
+			PostQuitMessage(0);
 			break;
 		/*
 		* Pintar la ventana:
@@ -185,4 +216,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
 void OnSize(HWND hwnd, UINT flag, int width, int height) {
 	//Aca se maneja el resize.
+}
+
+/*
+* Cada ventana tiene sus propios datos de instancia, por lo que a cada una se le debe asignar su propia estrucutra de datos.
+* Por ejemplo, si se define una clase ventana y se crean más ventanas de esa clase, podemos crear una clase de control personalizada.
+* Resulta conveniente ajustar GetWindowLongPtr a una pequeña función.
+*/
+inline StateInfo * GetAppState(HWND hwnd){
+	//Obtenemos el puntero a la estrucutra de datos.
+	LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	//Convertir de el puntero a uno tipo StateInfo (La estructura de datos)
+	StateInfo * pState = reinterpret_cast<StateInfo*>(ptr);
+	return pState;
 }
