@@ -5,3 +5,5 @@ CMakeLists.txt
 *.sln
 *.vcxproj*
 x64/
+Debug/
+*.aps
