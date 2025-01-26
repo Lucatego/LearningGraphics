@@ -5,9 +5,12 @@
 // The starter of the GUI
 class cMain: public wxFrame{
 public: // Atributos
-	wxButton * btn1 = nullptr;
-	wxTextCtrl * txt1 = nullptr;
-	wxListBox * lb1 = nullptr;
+	int fieldWidth = 10;
+	int fieldHeight = 10;
+	wxButton ** btnArr = nullptr;
+
+	int * field = nullptr;
+	bool firstClick = true;
 
 public: // Constructores
 	cMain();
